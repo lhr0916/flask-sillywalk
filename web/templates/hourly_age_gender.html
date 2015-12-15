@@ -1,0 +1,99 @@
+{% include 'menu.html' %}
+
+{% if gender == 'F' %}
+    {% set genderType = "여성" %}
+{% else %}
+    {% set genderType = "남성" %}
+{% endif %}
+<!-- S: page-wrapper -->
+<div id="page-wrapper">
+    <!-- S: container-fluid -->
+    <div class="container-fluid">
+        <div class="alert alert-info">
+            <p><i class="fa fa-fw fa-info-circle text-info" title=""></i> {{ genderType }} 연령대별 어느 시간때 공유를 하는지 확인 할수 있습니다. (-1일전 ~ 현재시간까지) </p>
+            <p>
+                <i class="fa fa-fw fa-info-circle text-info" title=""></i> <a href="/h_age_band/{{gender}}">연령대별 공유하는 시간때는 어떻게 될까? </a>
+            </p>
+        </div>
+    </div>
+    <!-- E: container-fluid -->
+
+    <hr />
+    <!--<div class="col-lg-12">-->
+    <div class="fluid-row" id="old">
+         <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    </div>
+</div>
+
+
+    <!-- jQuery -->
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/jquery.sparkline.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <!--<script src="../static/js/bootstrap.min.js"></script>-->
+
+<script>
+
+$(function () {
+    $('#container').highcharts({
+        chart: {
+            type: 'line',
+            zoomType: 'x'
+        },
+        title: {
+            text: '연령별 공유 시간대는 어떻게 될까?'
+        },
+        subtitle: {
+            text: ''
+        },
+        xAxis: {
+            categories: {{ date_band | safe}}
+        },
+        yAxis: {
+            title: {
+                text: '공유회수'
+            }
+        },
+        plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true
+                },
+                enableMouseTracking: false
+            }
+        },
+        series: [{
+            name: '10대중후반',
+            data : {{ hit_rank_1[0] }}
+        },
+        {
+            name: '20대초반',
+            data : {{ hit_rank_1[1] }}
+        },
+        {
+            name: '20대후반',
+            data : {{ hit_rank_1[2] }}
+        },
+        {
+            name: '30대후반',
+            data : {{ hit_rank_2[2] }}
+        },
+        {
+            name: '40대후반',
+            data : {{ hit_rank_2[2] }}
+        },
+        {
+            name: '50대후반',
+            data : {{ hit_rank_2[2] }}
+        },
+        ]
+    });
+});
+
+</script>
+
+
+
+

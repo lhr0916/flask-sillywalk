@@ -1,0 +1,140 @@
+{% include 'menu.html' %}
+
+<!-- S: page-wrapper -->
+<div id="page-wrapper">
+    <!-- S: container-fluid -->
+    <div class="container-fluid">
+        <div class="alert alert-info">
+            <p><i class="fa fa-fw fa-info-circle text-info" title=""></i> 일별 공유가 계속되고 있는 링크입니다.(=공유히트가 높은 링크) </p>
+            <p><i class="fa fa-fw fa-info-circle text-info" title=""></i> 연령과 성별 전부 합해진 데이터입니다. </p>
+        </div>
+    </div>
+    <!-- E: container-fluid -->
+
+
+    <!--<div class="col-lg-12">-->
+    <div class="fluid-row">
+     <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><i class="fa fa-money fa-fw"></i> 꾸준하게 일별 공유가 계속 되고 있는 컨텐츠를 <span class="text-danger">공유히트가 높은 컨텐츠</span>로 표기했습니다. </h3>
+        </div>
+
+        <div class="panel-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th><span class="text-info">{{ month }}월 1일 ~ {{ day }}일</span> 공유히트가 높은 링크이고,</th>
+                            <th>공유가 된 <span class="text-info">일자</span>와 <span class="text-info">(공유수)</span> 입니다.</th>
+                            <th>
+                                <small>이미지스샷 버튼을 눌러, 해당페이지 스샷을 볼수있습니다. (이미지클릭시 원본보기)</small>
+                                <small class="text-success"><a href="/ranks">iFrame을 원하시면ㅋ 클릭!</a></small>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for url , hit in hit_rank %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td style="max-width:150px;">
+                                <div style="word-wrap: break-word;">
+                                    <a href="{{ url }}" target="_blank">{{ url }}</a>
+                                </div>
+                            </td>
+                            <td style="max-width:70px;">
+                                <div style="word-wrap: break-word;">
+                                    <div class="sparkline_hit_chart"></div>
+                                    <button class="btn btn-info btn-xs sparkline_hit">공유추이보기</button>
+
+                                    <span class="hit_group">
+                                    {% for day in hit %}
+                                       <p>{{ day[0] }}  (<span class="hit_cnt">{{ day[1] }}</span>)</p>
+                                    {% endfor %}
+                                    </span>
+                                </div>
+                            </td>
+                            {% if preview == 'img' %}
+                            <td>
+                                <p><small>이 링크는 {{ hit|length }}일째 공유가 되고있음</small></p>
+                                <button class="btn btn-info btn-xs api_2shot" data-id="{{ url }}">이미지스샷</button>
+                                <div class="append_shot"></div>
+                            </td>
+                            {% else %}
+                            <td>
+                                <iframe src="{{ url }}" width="100%" height="100%" name="iframe_in_board" scrolling="yes" style="background-color:#fff"></iframe>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+     </div>
+    </div>
+</div>
+
+
+    <!-- jQuery -->
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/jquery.sparkline.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <!--<script src="../static/js/bootstrap.min.js"></script>-->
+
+<script>
+    $(".sparkline_hit").click(function(e){
+        var that = $(this);
+
+        var values = that.next(".hit_group").find(".hit_cnt").map(function() {
+            return $(this).text();
+        }).get();
+
+        console.log(values);
+        that.prev(".sparkline_hit_chart").sparkline(values,
+            {
+	    		type: 'line',
+	    		width: '100%',
+	    		height: '25',
+                disableTooltips:{},
+        });
+
+    });
+
+
+    $(".api_2shot").click(function(e){
+        var that = $(this);
+        var shared_url = that.attr("data-id");
+        //var paramObj = {url: encodeURIComponent(shared_url) };
+        var paramObj = {url: shared_url, delay: 1 };
+        var params = $.param( paramObj );
+
+    $.ajax({
+            type:"get",
+            url: "http://2shot.daumtools.com/c",
+            data:params,
+            dataType: 'jsonp',
+            success:function(data){
+               console.log(data);
+
+               if( data['status'] != "complete"){
+                var appendHtml= "<p class='text-info'>2SHOT 처리결과가 "+data['status']+"입니다. 다시 한번 눌러주세요</p>";
+                that.after(appendHtml);
+               }else{
+                var appendHtml= "<a title='이미지클릭 원본보기' href='"+ data['screenshot_jpg'] +"' target='_blank'><img src='"+data['screenshot_jpg']+"' width='400px' height='500px;' /></a>";
+                that.after(appendHtml);
+               }
+
+            },
+            error:function(e){
+                alert("ERROR!!\n 2shot api가 정상동작 안하나봅니다.. http://2shot.daumtools.com/ ");
+            }
+        });
+    });
+
+
+</script>
+
+
+
